@@ -41,12 +41,18 @@ class DetailProductSlugAPIView(APIView):
     def get(self, request, slug):
         try:
             product = Product.objects.filter(slug=slug).first()
-            sz = ProductSerializer(product)
+            if product:
+                sz = ProductSerializer(product)
+                return Response({
+                    "data":sz.data,
+                    "event":EventSerializer(Event.objects.all(), many=True).data,
+                    "status":True
+                }, status=status.HTTP_200_OK)
             return Response({
-                "data":sz.data,
-                "event":EventSerializer(Event.objects.all(), many=True).data,
-                "status":True
-            }, status=status.HTTP_200_OK)
+                    "data":[],
+                    "event":[],
+                    "status":False
+                }, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response({
                 "messages":str(e),
